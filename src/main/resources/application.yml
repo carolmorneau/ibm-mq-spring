@@ -1,0 +1,29 @@
+spring:
+  jms:
+    jndi-name: DEMO_CF
+
+ibm:
+  mq:
+    user: admin
+    password: passw0rd
+#    channel: DEV.ADMIN.SVRCONN
+#    queueManager: DEMO_CF
+#    connName: localhost(1414)
+#    jndi:
+#      provider-url: file:/Users/cmorneau/JNDI-Directory/
+#      provider-context-factory: com.sun.jndi.fscontext.RefFSContextFactory
+      # Assumes ibm.mq.queueManager contains connection factory name
+#    pool:
+#      enabled: true
+
+#ibm.mq.queueManager=QM1
+#ibm.mq.channel=DEV.ADMIN.SVRCONN
+#ibm.mq.host=localhost
+#ibm.mq.port=1414
+#ibm.mq.connName=localhost(1414)
+#ibm.mq.user=admin
+#ibm.mq.password=passw0rd
+#ibm.mq.pool.enabled=true
+
+server:
+  port: 8081
