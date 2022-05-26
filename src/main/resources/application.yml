@@ -1,14 +1,14 @@
-spring:
-  jms:
-    jndi-name: DEMO_CF
+#spring:
+#  jms:
+#    jndi-name: DEMO_CF
 
 ibm:
   mq:
     user: admin
     password: passw0rd
-#    channel: DEV.ADMIN.SVRCONN
-#    queueManager: DEMO_CF
-#    connName: localhost(1414)
+    channel: DEV.ADMIN.SVRCONN
+    queueManager: QM1
+    connName: localhost(1414)
 #    jndi:
 #      provider-url: file:/Users/cmorneau/JNDI-Directory/
 #      provider-context-factory: com.sun.jndi.fscontext.RefFSContextFactory
