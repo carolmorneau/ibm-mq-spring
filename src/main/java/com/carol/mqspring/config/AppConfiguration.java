@@ -2,12 +2,11 @@ package com.carol.mqspring.config;
 
 import com.ibm.mq.spring.boot.MQAutoConfiguration;
 import com.ibm.mq.spring.boot.MQConfigurationProperties;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.ExceptionListener;
@@ -16,7 +15,7 @@ import javax.jms.JMSException;
 
 @Configuration
 @EnableConfigurationProperties(MQConfigurationProperties.class)
-@Import({JndiConnectionFactoryWithUserCredentialsAutoConfiguration.class})
+@AutoConfigureAfter({ JndiConnectionFactoryWithUserCredentialsConfiguration.class, MQAutoConfiguration.class })
 public class AppConfiguration {
 
     @Bean

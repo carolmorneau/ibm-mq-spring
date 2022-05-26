@@ -1,4 +1,4 @@
-package com.carol.mqspring;
+package com.carol.mqspring.model;
 
 import java.io.Serializable;
 

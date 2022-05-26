@@ -25,9 +25,9 @@ import javax.naming.NamingException;
 @AutoConfigureBefore({ MQAutoConfiguration.class, JmsAutoConfiguration.class })
 @ConditionalOnClass(JmsTemplate.class)
 @ConditionalOnMissingBean(ConnectionFactory.class)
-@Conditional(JndiConnectionFactoryWithUserCredentialsAutoConfiguration.JndiOrPropertyCondition.class)
+@Conditional(JndiConnectionFactoryWithUserCredentialsConfiguration.JndiOrPropertyCondition.class)
 @EnableConfigurationProperties(JmsProperties.class)
-public class JndiConnectionFactoryWithUserCredentialsAutoConfiguration {
+public class JndiConnectionFactoryWithUserCredentialsConfiguration {
 
     @Bean
     public ConnectionFactory jmsConnectionFactory(JmsProperties properties) throws NamingException {
