@@ -1,6 +1,6 @@
 # Toy Client For IBM MQ
 
-##To run: 
+## To run 
 Modify source code to fit your specific needs then: 
 
 `mvn spring-boot:run`
@@ -10,6 +10,8 @@ Modify source code to fit your specific needs then:
 SEND
 
 `curl 'http://localhost:8081/send?dType=Q&dName=DEV.QUEUE.1&mType=text'`
+
+`curl 'http://localhost:8081/send?dType=T&dName=Topic&mType=bytes'`
 
 READ From Queue
 
