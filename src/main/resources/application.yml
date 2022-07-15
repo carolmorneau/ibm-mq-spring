@@ -7,23 +7,10 @@ ibm:
     user: admin
     password: passw0rd
     channel: DEV.ADMIN.SVRCONN
-    queueManager: DEMO_CF
+    queueManager: QM1
     connName: localhost(1414)
-#    jndi:   # Would require the use of UserCredentialsConnectionFactoryAdapter or some FactoryCustomizer
-#      provider-url: file:/Users/cmorneau/JNDI-Directory/
-#      provider-context-factory: com.sun.jndi.fscontext.RefFSContextFactory
-      # Assumes ibm.mq.queueManager contains connection factory name
-#    pool:
-#      enabled: true
-
-#ibm.mq.queueManager=QM1
-#ibm.mq.channel=DEV.ADMIN.SVRCONN
-#ibm.mq.host=localhost
-#ibm.mq.port=1414
-#ibm.mq.connName=localhost(1414)
-#ibm.mq.user=admin
-#ibm.mq.password=passw0rd
-#ibm.mq.pool.enabled=true
+#    additional-properties:
+#      XMSC_WMQ_SEND_CHECK_COUNT: 10
 
 server:
   port: 8081

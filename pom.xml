@@ -14,7 +14,8 @@
 	<name>mqspring</name>
 	<description>Demo project for IBM MQ with Spring Boot</description>
 	<properties>
-		<java.version>1.8</java.version>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -35,6 +36,19 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.jms</groupId>
+			<artifactId>javax.jms-api</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+
+        <!-- javax.annotations removed from core sdk: https://stackoverflow.com/questions/52701459/i-cant-use-postconstruct-and-postdestroy-with-java-11-->
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>1.3.2</version>
 		</dependency>
 	</dependencies>
 
