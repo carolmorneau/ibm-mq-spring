@@ -1,6 +1,6 @@
 package com.carol.mqspring;
 
-import com.solace.samples.spring.scs.MySerializable;
+import com.carol.MySerializableObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +78,7 @@ public class MqspringApplication {
 				((MapMessage) msg).setBoolean("MyBoolean", true);
 			} else if (messageType.equalsIgnoreCase("object")) {
 				msg = jmsContext.createObjectMessage();
-				((ObjectMessage) msg).setObject(new MySerializable("theName"));
+				((ObjectMessage) msg).setObject(new MySerializableObject("aValue"));
 			} else if (messageType.equalsIgnoreCase("stream")) {
 				msg = jmsContext.createStreamMessage();
 				((StreamMessage) msg).writeBytes("Those are my bytes".getBytes(StandardCharsets.UTF_8));
