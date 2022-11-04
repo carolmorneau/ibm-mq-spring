@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.PostConstruct;
 import javax.jms.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 @SpringBootApplication
 @RestController
@@ -109,9 +112,59 @@ public class MqspringApplication {
 	}
 
 	@GetMapping("recv")
-	String recv(@RequestParam(value = "dName", defaultValue = "DEV.QUEUE.2") String queueName) {
+	String recv(@RequestParam(value = "dName", defaultValue = "DEV.QUEUE.2") String queueName) throws JMSException {
 		Message msg = jmsTemplate.receive(queueName);
-		return msg.toString();
+		String returnString = msg.toString();
+
+		if (msg instanceof MapMessage mapMessage) {
+			returnString += mapFieldsToString(mapMessage);
+		} else if (msg instanceof StreamMessage streamMessage) {
+			returnString += streamObjectsToString(streamMessage);
+		}
+		return returnString;
+	}
+
+	private String streamObjectsToString(StreamMessage streamMessage) throws JMSException {
+		String output = "\n\n========Stream Objects========";
+		try {
+			while (true) {
+				Object value = streamMessage.readObject();
+				if (value instanceof byte[]) {
+					output += "\n" + byteArrayToString((byte[]) value);
+				} else {
+					output += "\n" + value;
+				}
+			}
+		} catch (MessageEOFException eof) {
+			//ignore
+		}
+		output += "\n========Stream Objects========";
+		return output;
+	}
+
+	private String mapFieldsToString(MapMessage mapMessage) throws JMSException {
+		Enumeration<String> en = mapMessage.getMapNames();
+
+		String output = "\n\n========Map Fields========";
+		while(en.hasMoreElements()) {
+			String key = en.nextElement();
+			Object value = mapMessage.getObject(key);
+			if (value instanceof byte[]) {
+				output += "\n" + key + " = " + byteArrayToString((byte[]) value);
+			} else {
+				output += "\n" + key + " = " + value;
+			}
+		}
+		output += "\n========Map Fields========";
+		return output;
+	}
+
+	private String byteArrayToString(byte[] bytes) {
+		String returnValue = "";
+		for(int i = 0; i < bytes.length ; i++) {
+			returnValue += bytes[i] + " ";
+		}
+		return returnValue;
 	}
 
 }
