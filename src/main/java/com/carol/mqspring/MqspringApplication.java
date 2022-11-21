@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.PostConstruct;
 import javax.jms.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 
 @SpringBootApplication
 @RestController
@@ -31,7 +29,6 @@ public class MqspringApplication {
 	private JMSContext jmsContext;
 
 	private JMSProducer producer1;
-	private JMSProducer producer2;
 
 	public static void main(String[] args) {
 		SpringApplication.run(MqspringApplication.class, args);
@@ -122,6 +119,14 @@ public class MqspringApplication {
 			returnString += streamObjectsToString(streamMessage);
 		}
 		return returnString;
+	}
+
+	@GetMapping("perf/poll")
+	String perfPollingConsumer(@RequestParam(value = "dName", defaultValue = "DEV.QUEUE.1") String queueName,
+							   @RequestParam(value = "numMsgs", defaultValue = "10000") int numMessages) {
+		logger.info(String.format("Measuring performance reading [ %d ] messages from queue [ %s ] with a polling consumer.", numMessages, queueName));
+
+		return "NOT IMPLEMENTED";
 	}
 
 	private String streamObjectsToString(StreamMessage streamMessage) throws JMSException {

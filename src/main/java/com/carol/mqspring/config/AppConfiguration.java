@@ -18,7 +18,7 @@ import javax.jms.JMSException;
 
 @Configuration
 @EnableConfigurationProperties(MQConfigurationProperties.class)
-@AutoConfigureAfter({ JndiConnectionFactoryWithUserCredentialsConfiguration.class, MQAutoConfiguration.class })
+@AutoConfigureAfter({ MQAutoConfiguration.class })
 public class AppConfiguration {
 
     @Bean
