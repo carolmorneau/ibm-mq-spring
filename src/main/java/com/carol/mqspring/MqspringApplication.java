@@ -8,12 +8,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 import javax.jms.*;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Enumeration;
 
 @SpringBootApplication
@@ -21,6 +23,9 @@ import java.util.Enumeration;
 public class MqspringApplication {
 
 	private static Logger logger = LoggerFactory.getLogger(MqspringApplication.class);
+
+	@Autowired
+	private ConnectionFactory connectionFactory;
 
 	@Autowired
 	private JmsTemplate jmsTemplate;
@@ -121,12 +126,85 @@ public class MqspringApplication {
 		return returnString;
 	}
 
-	@GetMapping("perf/poll")
-	String perfPollingConsumer(@RequestParam(value = "dName", defaultValue = "DEV.QUEUE.1") String queueName,
-							   @RequestParam(value = "numMsgs", defaultValue = "10000") int numMessages) {
-		logger.info(String.format("Measuring performance reading [ %d ] messages from queue [ %s ] with a polling consumer.", numMessages, queueName));
+	@PostMapping("performance")
+	String spoolMessages(@RequestParam(value = "dName", defaultValue = "DEV.QUEUE.1") String queueName,
+						 @RequestParam(value = "numMsgs", defaultValue = "10000") int numMessages,
+						 @RequestParam(value = "numBytes", defaultValue = "1024") int numBytes) throws JMSException {
 
-		return "NOT IMPLEMENTED";
+		logger.info(String.format("Spooling [ %d ] messages of roughly [ %d ] bytes on queue [ %s ]",
+				numMessages, numBytes, queueName));
+
+		byte[] bytes = new byte[numBytes];
+		for (int i = 0; i < numBytes; i++) {
+			bytes[i] = (byte) 'A';
+		}
+
+		Connection connection = connectionFactory.createConnection();
+		try {
+			Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE); //Doesn't matter for producer only sessions
+			MessageProducer producer = session.createProducer(session.createQueue(queueName));
+
+			BytesMessage bytesMessage = session.createBytesMessage();
+			bytesMessage.writeBytes(bytes);
+
+			long startTime = System.currentTimeMillis();
+			for (int i = 0; i < numMessages; i++) {
+				producer.send(bytesMessage);
+			}
+			long endTime = System.currentTimeMillis();
+
+			Duration duration = Duration.ofMillis(endTime - startTime);
+			long msgPerSeconds = computeMsgPerSeconds(numMessages, duration);
+
+			logger.info("Spooling COMPLETED");
+			return String.format("Sent [ %d ] messages of roughly [ %d ] bytes to queue [ %s ] in [ %d ] seconds\n[ %d msg/sec ]\n",
+					numMessages, numBytes, queueName, duration.toSeconds(), msgPerSeconds);
+		} finally {
+			connection.close();
+		}
+
+	}
+
+	@GetMapping("performance")
+	String testConsumerPerformance(@RequestParam(value = "dName", defaultValue = "DEV.QUEUE.1") String queueName,
+								   @RequestParam(value = "numMsgs", defaultValue = "10000") int numMessages,
+								   @RequestParam(value = "transacted", defaultValue = "true") boolean transacted) throws JMSException {
+
+
+		Connection connection = connectionFactory.createConnection();
+		Session session = connection.createSession(transacted ? Session.SESSION_TRANSACTED : Session.CLIENT_ACKNOWLEDGE);
+		MessageConsumer consumer = session.createConsumer(session.createQueue(queueName));
+		connection.start();
+
+		long startTime = System.currentTimeMillis();
+		logger.info(String.format("Starting synchronous consuming performance test: numMessages [ %d ], queue [ %s ], transacted [ %s ]",
+				numMessages, queueName, transacted));
+		try {
+			int numReceived = 0;
+			while (numReceived < numMessages) {
+				Message msg = consumer.receive(); // Blocks until msg is received
+				if (msg != null) {
+					if (transacted) {
+						session.commit();
+					} else {
+						msg.acknowledge();
+					}
+				}
+				numReceived++;
+			}
+			long endTime = System.currentTimeMillis();
+			Duration duration = Duration.ofMillis(endTime - startTime);
+			long msgPerSeconds = computeMsgPerSeconds(numReceived, duration);
+
+			String resultString = String.format("Completed performance test: consumed [ %d ] messages in [ %d ] seconds with [ %s ] session\n[ %d msg/sec ]\n",
+					numReceived, duration.toSeconds(), transacted ? "transacted" : "non-transacted", msgPerSeconds);
+
+			logger.info(resultString);
+			return resultString;
+
+		} finally {
+			connection.close();
+		}
 	}
 
 	private String streamObjectsToString(StreamMessage streamMessage) throws JMSException {
@@ -170,6 +248,10 @@ public class MqspringApplication {
 			returnValue += bytes[i] + " ";
 		}
 		return returnValue;
+	}
+
+	private long computeMsgPerSeconds(int numMessages, Duration duration) {
+		return Math.floorDiv(numMessages, duration.toSeconds());
 	}
 
 }
